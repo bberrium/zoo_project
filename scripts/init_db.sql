@@ -1,0 +1,3 @@
+CREATE USER zoo_admin WITH PASSWORD 'zoo_pass';
+CREATE DATABASE zoo_db OWNER zoo_admin;
+GRANT ALL PRIVILEGES ON DATABASE zoo_db TO zoo_admin;
