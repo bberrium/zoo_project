@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func, text
 from typing import List, Optional
-from . import models, schemas, database
+from . import models, database
 
 app = FastAPI(title="Zoo API")
 
@@ -25,6 +25,31 @@ class EnclosureCreate(BaseModel):
     room_number: int
     has_water: bool
     area: float
+
+class PlacementCreate(BaseModel):
+    species_id: int
+    enclosure_id: int
+    animal_count: int
+
+class EnclosureOut(EnclosureCreate):
+    id: int
+    model_config = ConfigDict(from_attributes=True)
+
+@app.post("/enclosures/", response_model=EnclosureOut)
+def create_enclosure(enclosure: EnclosureCreate, db: Session = Depends(database.get_db)):
+    db_enclosure = models.Enclosure(**enclosure.model_dump())
+    db.add(db_enclosure)
+    db.commit()
+    db.refresh(db_enclosure)
+    return db_enclosure
+
+@app.post("/placements/")
+def create_placement(placement: PlacementCreate, db: Session = Depends(database.get_db)):
+    db_placement = models.Placement(**placement.model_dump())
+    db.add(db_placement)
+    db.commit()
+    db.refresh(db_placement)
+    return db_placement
 
 # 2. CRUD 
 
